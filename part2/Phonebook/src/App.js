@@ -41,6 +41,23 @@ const Persons=({personsToShow,deleteName})=>{
     )
 }
 
+const Notification=({message,type})=>{
+
+    //type puede tener los valores exito o error
+    //existe un style definido en el index.css tanto para  exito como para error
+    if (message===null){
+        return null;
+    }
+    else {
+      return (
+        <div className={type}>
+          {message}
+        </div>
+      );
+    }
+
+}
+
 const App = () => {
  
 
@@ -50,8 +67,8 @@ const App = () => {
   const [ newName, setNewName ] = useState('');
   const [newNumber,setNewNumber]=useState('');
   const [filtro,setFiltro]=useState('');
-
-
+  const [opExitosa,setOpExitosa]=useState(null);
+  const [errorMessage,setErrorMessage]=useState(null);
   const onChangeNewName=(e)=>{
       setNewName(e.target.value);
       
@@ -80,7 +97,19 @@ const onChangeFiltro=(e)=>{
               const objPersonUpDated={...personToUpdate,number:newNumber};
           
              personService.update(personToUpdate.id,objPersonUpDated)
-             .then (dataUpdate => setPersons(persons.map(person=>person.id===personToUpdate.id?dataUpdate:person)) )
+            .then (dataUpdate =>{ 
+                                  setPersons(persons.map(person=>person.id===personToUpdate.id?dataUpdate:person));
+                                  setOpExitosa(`${newName} is update`);
+                                  setTimeout(()=>{ setOpExitosa(null)},3000);
+
+                                })
+             .catch(e=>{
+                          console.log(`${personToUpdate.name} is removed from server `);
+                          setErrorMessage(`${personToUpdate.name} is removed from server `);
+                          setTimeout(()=>{setErrorMessage(null);},3000);
+                          setPersons(persons.filter(person=>person.id!==personToUpdate.id));
+
+             });                   
            }
 
       } else {
@@ -89,7 +118,12 @@ const onChangeFiltro=(e)=>{
         //Guardar en el servidor
         
         personService.create(objPerson)
-        .then (data=> setPersons(persons.concat(data)))
+        .then (data=> { 
+                        setPersons(persons.concat(data));
+                        setOpExitosa(`${newName} is added`);
+                        setTimeout(()=>{ setOpExitosa(null)},3000); 
+        
+                      })
         .catch(e=>console.log("Ha ocurrido el siguiente error:",e));
 
       }
@@ -121,10 +155,20 @@ const onChangeFiltro=(e)=>{
                 personService.deletePerson(id)
                 .then (status=> { 
                                 if (status===200){
-                                setPersons(persons.filter(person=>person.id!==id));
+                                     setPersons(persons.filter(person=>person.id!==id));
+                                     setOpExitosa(`${personToDelete.name} is  deleted`);
+                                     setTimeout(()=>{ setOpExitosa(null)},3000);
                                 }
 
                   })
+                  .catch(e =>{
+                              console.log('Ha ocurrido el siguiente error:',e);
+                              console.log(`${personToDelete.name} is already removed from server `);
+                              setErrorMessage(`${personToDelete.name} is already removed from server `);
+                              setTimeout(()=>{ setErrorMessage(null)},3000);
+                              setPersons(persons.filter(person=>person.id!==personToDelete.id));
+
+                  });
           }        
    };
 
@@ -153,7 +197,9 @@ const onChangeFiltro=(e)=>{
       <PersonForm addName={addName} newName={newName} onChangeNewName={onChangeNewName} newNumber={newNumber} onChangeNewNumber={onChangeNewNumber}/>
       <h3>Numbers</h3>
       <Persons personsToShow={personsToShow} deleteName={deleteName}/>
-      
+      <Notification message={opExitosa} type='exito'/>  
+      <Notification message={errorMessage} type='error'/> 
+
     </div>
   )
 }
