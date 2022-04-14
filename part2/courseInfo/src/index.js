@@ -1,18 +1,10 @@
+//CourseInfo Part2
 import React from 'react';
 import ReactDOM from 'react-dom';
-
 import Course from './components/Course';
 
-
-
-
-
-
 const App = () => {
- 
-
-  
-  const courses = [
+    const courses = [
     {
       name: 'Half Stack application development',
       id: 1,
@@ -57,16 +49,12 @@ const App = () => {
     },
   ]
 
-
   return (
-  <>
-    <h1>Web development curriculum</h1>
-     {courses.map(course=> <Course key={course.id} course={course} />)}
-  </>
+    <>
+      <h1>Web development curriculum</h1>
+      {courses.map(course => <Course key={course.id} course={course} />)}
+    </>
   );
 };//App
 
-
-ReactDOM.render( <App />, document.getElementById('root')
-);
-
+ReactDOM.render( <App />, document.getElementById('root'));
