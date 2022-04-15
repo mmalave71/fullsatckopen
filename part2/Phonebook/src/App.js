@@ -86,8 +86,9 @@ const onChangeFiltro=(e)=>{
 
                                 })
              .catch(e=>{
-                          console.log(`${personToUpdate.name} is removed from server `);
-                          setErrorMessage(`${personToUpdate.name} is removed from server `);
+                          console.log(`Ha ocurrido un error al actualzar a ${personToUpdate.name} `);
+                          console.log("Ha ocurrido el error:",e);
+                          setErrorMessage(`Ha ocurrido un error al actualizar a ${personToUpdate.name} `);
                           setTimeout(()=>{setErrorMessage(null);},3000);
                           setPersons(persons.filter(person=>person.id!==personToUpdate.id));
 
