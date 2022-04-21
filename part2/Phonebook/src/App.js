@@ -2,51 +2,10 @@
 import React, { useState ,useEffect} from 'react';
 import personService from './services/persons';
 
-const Filter = ({filtro,onChange})=>{
-  return (
-    <>
-      filter show as: <input type="text" value={filtro} onChange={onChange} />
-      <br />
-    </>
-  );
-}
-
-const PersonForm=({addName,newName,newNumber,onChangeNewName,onChangeNewNumber})=>{
-
-  return (
-    <form onSubmit={addName}>
-      <div>
-        name: <input type="text" value={newName} onChange={onChangeNewName} />
-        number: <input type="text" value={newNumber} onChange={onChangeNewNumber} />
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  );
-}
-const Persons=({personsToShow,deleteName})=>{
-    return (
-      <ul>
-        {personsToShow.map(person=> <li key={person.id}>{person.name} {person.number}<button onClick={()=>deleteName(person.id)}>Delete</button></li>)}
-      </ul>
-    );
-}
-
-const Notification=({message,type})=>{
-    //type puede tener los valores exito o error
-    //existe un style definido en el index.css tanto para  exito como para error
-    if (message===null){
-        return null;
-    }
-    else {
-      return (
-        <div className={type}>
-          {message}
-        </div>
-      );
-    }
-}
+import Filter from './components/Filter';
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
+import Notification from './components/Notification';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -72,6 +31,7 @@ const onChangeFiltro=(e)=>{
       e.preventDefault();
       //Proceso el NewName
 
+    
       if (persons.find(person=>person.name===newName)){
           
            if (window.confirm(`${newName} is already added to phonebook,replace old number with a new one? `))
@@ -95,7 +55,9 @@ const onChangeFiltro=(e)=>{
              });                   
            }
 
-      } else {
+      }
+       else {
+       
         const objPerson={name:newName,number:newNumber};       
         //Agregar en el servidor
         personService.create(objPerson)
@@ -106,7 +68,7 @@ const onChangeFiltro=(e)=>{
         
                       })
         .catch(e=>console.log("Ha ocurrido el siguiente error:",e));
-      }
+      } // del bloque que permite editar un nombre existente
       setNewName('');
       setNewNumber('');
   };
@@ -117,7 +79,7 @@ const onChangeFiltro=(e)=>{
         {
                 personService.deletePerson(id)
                 .then (status=> { 
-                                if (status===200){
+                                if (status===204){
                                      setPersons(persons.filter(person=>person.id!==id));
                                      setOpExitosa(`${personToDelete.name} is  deleted`);
                                      setTimeout(()=>{ setOpExitosa(null)},3000);
@@ -150,7 +112,7 @@ const onChangeFiltro=(e)=>{
       <h3>Add a New</h3>
       <PersonForm addName={addName} newName={newName} onChangeNewName={onChangeNewName} newNumber={newNumber} onChangeNewNumber={onChangeNewNumber}/>
       <h3>Numbers</h3>
-      <Persons personsToShow={personsToShow} deleteName={deleteName}/>
+      <Persons personsToShow={personsToShow} deleteName={deleteName}/> 
       <Notification message={opExitosa} type='exito'/>  
       <Notification message={errorMessage} type='error'/> 
 
